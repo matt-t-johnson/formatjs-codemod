@@ -1,0 +1,13 @@
+node_modules
+.vscode
+/src/test.js
+/src/test.sh
+
+# generated example files
+**/shared-messages.*
+example-projects/**/i18n/
+
+# These files should remain unchanged from project initialization
+# example-projects/**/package.json
+# example-projects/**/package-lock.json
+# example-projects/**/src/**

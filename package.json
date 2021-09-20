@@ -1,0 +1,31 @@
+{
+  "name": "formatjs-refactor",
+  "version": "1.0.0",
+  "description": "A node CLI designed to refactor existing codebases to support i18n with FormatJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "reset": "git co example-projects/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://scm.platform.avalara.io/matthew.t.johnson/i18n-refactor.git"
+  },
+  "keywords": [
+    "node",
+    "FormatJS",
+    "i18n",
+    "CLI"
+  ],
+  "author": "Matt Johnson",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/generator": "^7.13.9",
+    "@babel/parser": "^7.13.12",
+    "@babel/traverse": "^7.13.0",
+    "@babel/types": "^7.13.13"
+  },
+  "devDependencies": {
+    "jest": "^27.0.4"
+  }
+}
