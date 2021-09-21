@@ -90,7 +90,6 @@ function traverseAst(ast, config) {
 
         // add import for shared message file
         const parentProgramPath = nodePath.findParent((p) => p.isProgram());
-        console.log('parentProgramPath :>> ', parentProgramPath);
         const pathToSharedMessages = path.relative(currentFilePath, path.join(config.projectPath, config.sourceOutputDirectory, './shared-messages'));
         const importSharedMessagesNode = astBuilders.buildImportNode('sharedMessages', pathToSharedMessages);
 
@@ -145,11 +144,29 @@ function generateNewCodeAndWrite(ast, buffer, filePath, config) {
   fs.writeFileSync(filePath, output.code);
 
   /* STEP 5: CREATE SHARED MESSAGES FILE */
+  console.log('step 5 processMessages :>> ', processMessages);
   const messagesBuffer = JSON.stringify(processMessages);
   const messagesAst = parser.parseExpression(messagesBuffer);
+  // const messagesAst = parser.parse(messagesBuffer);
   const sharedMessagesFileAst = astBuilders.buildSharedMessageFileAst(messagesAst);
+  // TODO: sharedMessage file cannot have string properties
+  // (parse file again to remove strings?)
+  traverse(sharedMessagesFileAst, {
+    ObjectProperty: function(nodePath) {
+      // console.log('nodePath :>> ', nodePath);
+      if (t.isStringLiteral(nodePath.node.key)) {
+        // console.log('is literal ***', nodePath.node.key)
+        nodePath.node.key = t.Identifier(nodePath.node.key.value);
+      }
+    }
+  })
+
   const messageFileOutput = generate(sharedMessagesFileAst).code;
 
+  // TODO need to create i18n folder if one does not exist
+  if (!fs.existsSync(outputPath)){
+    fs.mkdirSync(outputPath);
+  }
   fs.writeFileSync(`${outputPath}/shared-messages.js`, messageFileOutput);
 }
 

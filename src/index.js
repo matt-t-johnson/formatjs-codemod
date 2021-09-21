@@ -30,6 +30,7 @@ if(configPath) {
 const config = require(CONFIG_PATH);
 const SOURCE_DIR_PATH = path.join(__dirname, config.projectPath, config.sourceDirectory);
 
+
 function program() {
   /* RECURSIVELY READ PROJECT DIRECTORY AND PARSE INCLUDED FILES */
   core.traverseDirectory(SOURCE_DIR_PATH, config);
