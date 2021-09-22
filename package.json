@@ -1,9 +1,11 @@
 {
-  "name": "formatjs-refactor",
+  "name": "formatjs-codemod",
   "version": "1.0.0",
   "description": "A node CLI designed to refactor existing codebases to support i18n with FormatJS",
   "main": "index.js",
   "scripts": {
+    "build": "rollup src/index.js --file dist/index.js --format cjs",
+    "build-watch": "npm run build -- --watch",
     "test": "jest",
     "reset": "git co example-projects/"
   },
@@ -26,6 +28,7 @@
     "@babel/types": "^7.13.13"
   },
   "devDependencies": {
-    "jest": "^27.0.4"
+    "jest": "^27.0.4",
+    "rollup": "^2.57.0"
   }
 }

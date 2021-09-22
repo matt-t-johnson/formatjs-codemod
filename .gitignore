@@ -2,6 +2,7 @@ node_modules
 .vscode
 /src/test.js
 /src/test.sh
+/dist
 
 # generated example files
 **/shared-messages.*
