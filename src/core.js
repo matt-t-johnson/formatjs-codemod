@@ -144,18 +144,15 @@ function generateNewCodeAndWrite(ast, buffer, filePath, config) {
   fs.writeFileSync(filePath, output.code);
 
   /* STEP 5: CREATE SHARED MESSAGES FILE */
-  console.log('step 5 processMessages :>> ', processMessages);
   const messagesBuffer = JSON.stringify(processMessages);
   const messagesAst = parser.parseExpression(messagesBuffer);
-  // const messagesAst = parser.parse(messagesBuffer);
   const sharedMessagesFileAst = astBuilders.buildSharedMessageFileAst(messagesAst);
-  // TODO: sharedMessage file cannot have string properties
-  // (parse file again to remove strings?)
+  // Parses the newly created shared message file to remove the quotes from
+  // object properties, otherwise the i18n management script fails.
+  // This could probably be improved to avoid traversing it again.
   traverse(sharedMessagesFileAst, {
     ObjectProperty: function(nodePath) {
-      // console.log('nodePath :>> ', nodePath);
       if (t.isStringLiteral(nodePath.node.key)) {
-        // console.log('is literal ***', nodePath.node.key)
         nodePath.node.key = t.Identifier(nodePath.node.key.value);
       }
     }
@@ -163,7 +160,6 @@ function generateNewCodeAndWrite(ast, buffer, filePath, config) {
 
   const messageFileOutput = generate(sharedMessagesFileAst).code;
 
-  // TODO need to create i18n folder if one does not exist
   if (!fs.existsSync(outputPath)){
     fs.mkdirSync(outputPath);
   }
