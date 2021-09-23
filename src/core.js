@@ -24,7 +24,7 @@ let processMessages = {};
 let currentFilePath;
 
 /* RECURSIVELY READ PROJECT DIRECTORY AND PARSE INCLUDED FILES */
-function traverseDirectory(directory, options) {
+async function traverseDirectory(directory, options) {
   fs.readdirSync(directory).forEach(file => {
     const fullPath = path.join(directory, file);
     currentFilePath = fullPath;
@@ -170,20 +170,19 @@ function generateNewCodeAndWrite(ast, buffer, filePath, options) {
 
 /* INSTALL I18N PROJECT DEPENDENCIES */
 // TODO: pass shell as arg for testing?
-function installDependencies() {
+async function installDependencies() {
   var installSpawn = cp.spawn(`${shell}`, ['../../src/scripts/install-dependencies.sh'], { shell: shell});
-  installSpawn.stdout.on('data', (data) => {
-    // log output from script
+
+  for await (const data of installSpawn.stdout) {
     console.log(data.toString());
-  });
-  installSpawn.stderr.on('data', (data) => {
-    // log output from script
+  }
+  for await (const data of installSpawn.stderr) {
     console.log('Error installing dependencies: ', data.toString());
-  });
+  }
 }
 
 /* CREATE I18N DIRECTORY IN SOURCE PROJECT */
-function buildI18nFolderInProject(options) {
+async function buildI18nFolderInProject(options) {
   const toolsOutputPath = path.join(__dirname, options.toolsOutput);
   const sourceOutputPath = path.join(__dirname, options.output);
   const sourceFilesToCopyPath = path.join(__dirname, '/files-to-write');
@@ -193,14 +192,13 @@ function buildI18nFolderInProject(options) {
     ['../../src/scripts/build-i18n-folder.sh', `-f ${sourceFilesToCopyPath}`, `-t ${toolsOutputPath}`, `-s ${sourceOutputPath}`],
     { shell: shell}
   );
-  buildI18nSpawn.stdout.on('data', (data) => {
-    // log output from script
+
+  for await (const data of buildI18nSpawn.stdout) {
     console.log(data.toString());
-  });
-  buildI18nSpawn.stderr.on('data', (data) => {
-    // log output from script
+  }
+  for await (const data of buildI18nSpawn.stderr) {
     console.log('Error creating i18n files: ', data.toString());
-  });
+  }
 }
 
 module.exports = {
