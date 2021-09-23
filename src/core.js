@@ -1,6 +1,7 @@
 const cp = require('child_process');
 const os = require('os');
 const fs = require('fs');
+const { cwd } = require('process');
 const path = require('path');
 const t = require("@babel/types");
 const traverse = require("@babel/traverse").default;
@@ -142,7 +143,7 @@ function traverseAst(ast, options) {
 function generateNewCodeAndWrite(ast, buffer, filePath, options) {
   const output = generate(ast, { /* options */ }, buffer);
 
-  const outputPath = path.join(__dirname, options.output);
+  const outputPath = path.join(cwd(), options.output);
   fs.writeFileSync(filePath, output.code);
 
   /* STEP 5: CREATE SHARED MESSAGES FILE */
@@ -183,8 +184,8 @@ async function installDependencies() {
 
 /* CREATE I18N DIRECTORY IN SOURCE PROJECT */
 async function buildI18nFolderInProject(options) {
-  const toolsOutputPath = path.join(__dirname, options.toolsOutput);
-  const sourceOutputPath = path.join(__dirname, options.output);
+  const toolsOutputPath = path.join(cwd(), options.toolsOutput);
+  const sourceOutputPath = path.join(cwd(), options.output);
   const sourceFilesToCopyPath = path.join(__dirname, '/files-to-write');
 
   var buildI18nSpawn = cp.spawn(
