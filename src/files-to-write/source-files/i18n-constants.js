@@ -1,3 +1,4 @@
+// TODO: these configs should be generated from locales specified in CLI options
 const locales = {
   ENGLISH: 'en-US',
   GERMAN: 'de-DE',

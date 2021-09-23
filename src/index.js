@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-const fs = require('fs');
 const { cwd } = require('process');
 const path = require('path');
 const core = require('./core');
@@ -22,7 +21,7 @@ program
   .option('-d, --defaultLocale <locale>', 'specifies what the default locale will be for the project', 'en-US')
   .requiredOption('-l, --locales <list...>', 'comma separated string specifying which locales the project will support', commaSeparatedList)
   // TODO: add option
-  // .addOption(new Option('-z, --shell <name>', 'the shell to use when running the script to install dependencies').choices(['bash', 'sh', 'powershell', 'ksh']))
+  // .addOption(new Option('--shell <name>', 'the shell to use when running the script to install dependencies').choices(['bash', 'sh', 'powershell', 'ksh']))
   .option('--no-install', 'print the required dependencies rather than automatically installing them')
   // TODO: add option
   // .option('--no-inline', 'specifies that message definitions should be created in separate files rather then in the files where they are used')

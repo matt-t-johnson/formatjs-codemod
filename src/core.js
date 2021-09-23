@@ -30,7 +30,6 @@ async function traverseDirectory(directory, options) {
     const fullPath = path.join(directory, file);
     currentFilePath = fullPath;
 
-    console.log('fullPath :>> ', fullPath);
     // TODO: Add support for other file extensions
     const fileExtensionsToParse = ['js', 'jsx'];
     const canParse = fileExtensionsToParse.includes(file.split('.').pop());
@@ -167,6 +166,18 @@ function generateNewCodeAndWrite(ast, buffer, filePath, options) {
     fs.mkdirSync(outputPath);
   }
   fs.writeFileSync(`${outputPath}/shared-messages.js`, messageFileOutput);
+
+  generateConstantsFile(options);
+}
+
+function generateConstantsFile(options) {
+  const constantsOutput = generate(astBuilders.buildConstantsFileAst(options.locales, options.defaultLocale)).code;
+  const outputPath = path.join(cwd(), options.output);
+
+  if (!fs.existsSync(outputPath)){
+    fs.mkdirSync(outputPath);
+  }
+  fs.writeFileSync(`${outputPath}/i18n-constants-dynamic.js`, constantsOutput);
 }
 
 /* INSTALL I18N PROJECT DEPENDENCIES */

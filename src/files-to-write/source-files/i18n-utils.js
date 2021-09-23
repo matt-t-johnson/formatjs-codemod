@@ -37,7 +37,6 @@ export function initIntl(locale) {
     },
     cache
   );
-  console.log('intl :>> ', intl);
   window.intl = intl;
 }
 
