@@ -1,10 +1,15 @@
-# formatjs-codemod
+# reformatjs
 
 A codemod designed to refactor an existing project to be able to support internationalization (i18n) and localization (l10n) with the FormatJS set of libraries.
 
+## Pre-requisites
+Install reformatjs globally: `npm i -g reformatjs`
+
+(for local development, run `npm i -g` to install the local version as reformatjs)
 ## Running on example projects
 1. Navigate to the example project you want to test the tool against. E.g: `cd example-projects/react-app`
-2. Run the main program `node ../../src/index.js`
+2. Run the main program `reformatjs -s ../example-projects/react-app/src -o ../example-projects/react-app/src/i18n -t ../example-projects/react-app/src/i18n-tools -l zh-CN,de-DE`
+
 
 
 ## Files written to source project

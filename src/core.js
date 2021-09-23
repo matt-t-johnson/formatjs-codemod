@@ -6,6 +6,7 @@ const t = require("@babel/types");
 const traverse = require("@babel/traverse").default;
 const parser = require("@babel/parser");
 const generate = require("@babel/generator").default;
+const minimatch = require("minimatch");
 const astBuilders = require('./ast-builders');
 const utils = require('./utils');
 
@@ -23,31 +24,33 @@ let processMessages = {};
 let currentFilePath;
 
 /* RECURSIVELY READ PROJECT DIRECTORY AND PARSE INCLUDED FILES */
-function traverseDirectory(directory, config) {
+function traverseDirectory(directory, options) {
   fs.readdirSync(directory).forEach(file => {
-    // temp rules for whether to include file in process (TODO get lists from config arguments)
-    const fileExtensionsToParse = ['js', 'jsx'];
-    const canParse = fileExtensionsToParse.includes(file.split('.').pop());
-    const exclusionList = ['shared-messages.js'];
-    const inclusionList = ['App.js', 'ChildComponent.jsx'];
-
-    let shouldParseFile = canParse;
-    if (inclusionList.length > 0 && !inclusionList.includes(file)) shouldParseFile = false;
-    if (exclusionList.length > 0 && exclusionList.includes(file)) shouldParseFile = false;
-
     const fullPath = path.join(directory, file);
     currentFilePath = fullPath;
+
+    console.log('fullPath :>> ', fullPath);
+    // TODO: Add support for other file extensions
+    const fileExtensionsToParse = ['js', 'jsx'];
+    const canParse = fileExtensionsToParse.includes(file.split('.').pop());
+
+    let shouldParseFile = canParse;
+    const include = options.inclusions.some(glob => minimatch(fullPath, glob));
+    const exclude = options.exclusions.forEach(glob => minimatch(fullPath, glob));
+
+    if (!include) shouldParseFile = false;
+    if (exclude) shouldParseFile = false;
+
     if (fs.lstatSync(fullPath).isDirectory()) {
-      console.log(fullPath);
-      traverseDirectory(fullPath, config);
+      traverseDirectory(fullPath, options);
     } else if (shouldParseFile) {
       console.log('Parsing File into AST', fullPath);
       const buffer = fs.readFileSync(fullPath).toString();
       let ast = astBuilders.parseToAst(buffer);
       console.log('AST Step Complete');
-      ast = traverseAst(ast, config);
+      ast = traverseAst(ast, options);
       console.log('Traverse / Modify Step Complete');
-      generateNewCodeAndWrite(ast, buffer, fullPath, config)
+      generateNewCodeAndWrite(ast, buffer, fullPath, options)
       console.log('Generate And Write Step Complete');
       console.log('********************************************************');
       console.log('Process Complete For: ', fullPath);
@@ -58,7 +61,7 @@ function traverseDirectory(directory, config) {
 
 /* STEP 3: TRAVERSE AST AND MODIFY NODES */
 // Initialize list of MessageDescriptor objects
-function traverseAst(ast, config) {
+function traverseAst(ast, options) {
   const messages = {};
   let messagesImported = false;
   let intlObjectImported = false;
@@ -90,7 +93,7 @@ function traverseAst(ast, config) {
 
         // add import for shared message file
         const parentProgramPath = nodePath.findParent((p) => p.isProgram());
-        const pathToSharedMessages = path.relative(currentFilePath, path.join(config.projectPath, config.sourceOutputDirectory, './shared-messages'));
+        const pathToSharedMessages = path.relative(currentFilePath, path.join(options.output, './shared-messages'));
         const importSharedMessagesNode = astBuilders.buildImportNode('sharedMessages', pathToSharedMessages);
 
         if (!messagesImported) {
@@ -100,7 +103,7 @@ function traverseAst(ast, config) {
         }
 
         // add imports for intl object
-        const pathToIntl = path.relative(currentFilePath, path.join(config.projectPath, config.sourceOutputDirectory, './intl'));
+        const pathToIntl = path.relative(currentFilePath, path.join(options.output, './intl'));
         const parentComponentPath = nodePath.findParent(p => {
           if (p.isFunctionDeclaration() || p.isClassDeclaration()) return true;
           return false;
@@ -136,11 +139,10 @@ function traverseAst(ast, config) {
 }
 
 /* STEP 4: GENERATE NEW CODE FROM MODIFIED AST */
-function generateNewCodeAndWrite(ast, buffer, filePath, config) {
+function generateNewCodeAndWrite(ast, buffer, filePath, options) {
   const output = generate(ast, { /* options */ }, buffer);
 
-  // TODO: re-visit output path location / naming
-  const outputPath = path.join(__dirname, config.projectPath, config.sourceOutputDirectory);
+  const outputPath = path.join(__dirname, options.output);
   fs.writeFileSync(filePath, output.code);
 
   /* STEP 5: CREATE SHARED MESSAGES FILE */
@@ -181,9 +183,9 @@ function installDependencies() {
 }
 
 /* CREATE I18N DIRECTORY IN SOURCE PROJECT */
-function buildI18nFolderInProject(config) {
-  const toolsOutputPath = path.join(__dirname, config.projectPath, config.toolsOutputDirectory);
-  const sourceOutputPath = path.join(__dirname, config.projectPath, config.sourceOutputDirectory);
+function buildI18nFolderInProject(options) {
+  const toolsOutputPath = path.join(__dirname, options.toolsOutput);
+  const sourceOutputPath = path.join(__dirname, options.output);
   const sourceFilesToCopyPath = path.join(__dirname, '/files-to-write');
 
   var buildI18nSpawn = cp.spawn(

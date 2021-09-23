@@ -1,8 +1,9 @@
 {
-  "name": "formatjs-codemod",
+  "name": "reformatjs",
   "version": "1.0.0",
   "description": "A node CLI designed to refactor existing codebases to support i18n with FormatJS",
-  "main": "index.js",
+  "main": "src/index.js",
+  "bin": "src/index.js",
   "scripts": {
     "build": "rollup src/index.js --file dist/index.js --format cjs",
     "build-watch": "npm run build -- --watch",
@@ -11,13 +12,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://scm.platform.avalara.io/matthew.t.johnson/i18n-refactor.git"
+    "url": "https://github.com/matt-t-johnson/formatjs-codemod.git"
   },
   "keywords": [
     "node",
     "FormatJS",
     "i18n",
-    "CLI"
+    "l10n",
+    "internationalization",
+    "localization",
+    "CLI",
+    "codemod",
+    "refactor"
   ],
   "author": "Matt Johnson",
   "license": "ISC",
@@ -25,7 +31,9 @@
     "@babel/generator": "^7.13.9",
     "@babel/parser": "^7.13.12",
     "@babel/traverse": "^7.13.0",
-    "@babel/types": "^7.13.13"
+    "@babel/types": "^7.13.13",
+    "commander": "^8.2.0",
+    "minimatch": "^3.0.4"
   },
   "devDependencies": {
     "jest": "^27.0.4",

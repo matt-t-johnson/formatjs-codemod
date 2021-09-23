@@ -6,6 +6,7 @@ const t = require("@babel/types");
 function parseToAst(buffer) {
   const ast = parser.parse(buffer, {
     sourceType: "module",
+    // TODO: make plugins dynamic depending on included file types
     plugins: [
       "jsx",
       "typescript",

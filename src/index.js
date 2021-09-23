@@ -1,51 +1,53 @@
+#!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
 const core = require('./core');
+const { Command } = require('commander');
 
-// TODO: update all paths to be run from config.projectPath
-// TODO: update i18n files that get copied over to source project
+const program = new Command();
 
-// TODO: get config from command line argument parser like:
-  // - https://www.npmjs.com/package/command-line-args ?
-  // - https://www.npmjs.com/package/minimist
-let configPath = '';
-let CONFIG_PATH = '';
-configPath = process.argv[3];
+program.version('0.0.1');
 
-if(configPath) {
-  CONFIG_PATH = path.join(__dirname, configPath);
-
-  fs.access(CONFIG_PATH, fs.F_OK, (err) => {
-    if (err) {
-      console.log('Config file provided does not exist', CONFIG_PATH);
-      console.error(err);
-      return;
-    }
-    //file exists
-  })
-} else {
-  CONFIG_PATH = './config';
+function commaSeparatedList(value) {
+  return value.split(',');
 }
 
-const config = require(CONFIG_PATH);
-const SOURCE_DIR_PATH = path.join(__dirname, config.projectPath, config.sourceDirectory);
+program
+  .requiredOption('-s, --src <path>', 'source directory')
+  .requiredOption('-o, --output <path>', 'path to directory where i18n source code should be generated')
+  .option('-t, --toolsOutput <path>', 'path to directory where i18n tools / scripts should be generated', './i18n-tools')
+  .option('-n, --no-inline', 'specifies that message definitions should be created in separate files rather then in the files where they are used')
+  .requiredOption('-i, --inclusions <list...>', 'comma separated string specifying which files / folders to parse', commaSeparatedList, ['**/*.js','**/*.jsx','**/*.ts','**/*.tsx'])
+  .requiredOption('-e, --exclusions <list...>', 'comma separated string specifying which files / folders to ignore', commaSeparatedList, ['**/*.test.'])
+  .option('-d, --defaultLocale <locale>', 'specifies what the default locale will be for the project', 'en-US')
+  .requiredOption('-l, --locales <list...>', 'comma separated string specifying which locales the project will support', commaSeparatedList)
+  // .addOption(new Option('-z, --shell <name>', 'the shell to use when running the script to install dependencies').choices(['bash', 'sh', 'powershell', 'ksh']))
+  // .option('-p, --packages', 'install required dependencies')
 
+program.parse(process.argv);
 
-function program() {
+const options = program.opts();
+
+console.log('options :>> ', options);
+
+const SOURCE_DIR_PATH = path.join(__dirname, options.src);
+
+// TODO break into separate commands that can be run independently
+function run() {
   /* RECURSIVELY READ PROJECT DIRECTORY AND PARSE INCLUDED FILES */
-  core.traverseDirectory(SOURCE_DIR_PATH, config);
+  core.traverseDirectory(SOURCE_DIR_PATH, options);
 
   /* INSTALL I18N PROJECT DEPENDENCIES */
   core.installDependencies();
 
   /* CREATE I18N DIRECTORY IN SOURCE PROJECT */
-  core.buildI18nFolderInProject(config);
+  core.buildI18nFolderInProject(options);
 
   // TODO: run final message after all dependencies have finished installing. It is running too early.
-  console.log(`Your project has been updated! See ${config.sourceOutputDirectory}/README.md for instructions on how to manage your localized project.`);
+  console.log(`Your project has been updated! See ${options.output}/README.md for instructions on how to manage your localized project.`);
   console.log('********************************************************');
 }
 
 
 /* PROGRAM START */
-program();
+run();
