@@ -63,7 +63,6 @@ function buildConstantsFileAst(locales, defaultLocale) {
   // TODO: extract common var names to constants
 
   // variable declaration
-
   // build a map of language name to each specified locale e.g. chineseSimplified: 'zh-CN'
   function buildLocaleConstant(locale) {
     const languageKey = languageNameLookup(locale);

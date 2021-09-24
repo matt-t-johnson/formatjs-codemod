@@ -43,7 +43,6 @@ async function run() {
   logger.info('Options: ', options);
 
   /* RECURSIVELY READ PROJECT DIRECTORY AND PARSE INCLUDED FILES */
-  // logger.line();
   logger.section(`Traversing source directory ${options.src} and parsing included files`)
   await core.traverseDirectory(SOURCE_DIR_PATH, options);
 
@@ -77,8 +76,6 @@ async function run() {
   logger.success(`Your project has been updated! See ${options.toolsOutput}/README.md for instructions on how to manage your localized project.`);
   logger.line();
 }
-logger.info(`The following packages are required for using FormatJS: ${JSON.stringify(requiredDependencies)}`);
-
 
 /* PROGRAM START */
 run();
