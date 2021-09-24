@@ -3,6 +3,7 @@ node_modules
 /src/test.js
 /src/test.sh
 /dist
+/coverage
 
 # generated example files
 **/shared-messages.*

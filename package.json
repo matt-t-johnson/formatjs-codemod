@@ -8,11 +8,13 @@
     "build": "rollup src/index.js --file dist/index.js --format cjs",
     "build-watch": "npm run build -- --watch",
     "test": "jest",
+    "test-watch": "jest --watch --coverage",
+    "coverage": "jest --coverage",
     "reset": "git co example-projects/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/matt-t-johnson/formatjs-codemod.git"
+    "url": "https://github.com/matt-t-johnson/reformatjs.git"
   },
   "keywords": [
     "node",

@@ -1,13 +1,8 @@
-// TODO: Add unit tests for utils
-function stripWhitespace(message = '') {
-  return message.replace(/\s/g, '');
-}
-
 // util function to convert the input to string type
 function convertToString(input) {
-  if(input) {
-    if(typeof input === "string") {
-        return input;
+  if (input) {
+    if (typeof input === "string") {
+      return input;
     }
     return String(input);
   }
@@ -55,7 +50,6 @@ function commaSeparatedList(value) {
 }
 
 module.exports = {
-  stripWhitespace,
   convertToString,
   commaSeparatedList,
   toWords,
