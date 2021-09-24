@@ -10,6 +10,7 @@ const generate = require("@babel/generator").default;
 const minimatch = require("minimatch");
 const astBuilders = require('./ast-builders');
 const utils = require('./utils');
+const logger = require('./logger');
 
 const OS_PLATFORM = os.platform();
 const platformShells = {
@@ -44,17 +45,16 @@ async function traverseDirectory(directory, options) {
     if (fs.lstatSync(fullPath).isDirectory()) {
       traverseDirectory(fullPath, options);
     } else if (shouldParseFile) {
-      console.log('Parsing File into AST', fullPath);
+      logger.info(`==> Modifying ${file}`);
       const buffer = fs.readFileSync(fullPath).toString();
       let ast = astBuilders.parseToAst(buffer);
-      console.log('AST Step Complete');
+
+      // traverse file AST and add / modify nodes to support i18n
       ast = traverseAst(ast, options);
-      console.log('Traverse / Modify Step Complete');
-      generateNewCodeAndWrite(ast, buffer, fullPath, options)
-      console.log('Generate And Write Step Complete');
-      console.log('********************************************************');
-      console.log('Process Complete For: ', fullPath);
-      console.log('********************************************************');
+
+      generateNewCodeAndWrite(ast, buffer, fullPath)
+
+      logger.success('==> Process complete for: ', file);
     }
   });
 }
@@ -138,17 +138,24 @@ function traverseAst(ast, options) {
   return ast;
 }
 
+
 /* STEP 4: GENERATE NEW CODE FROM MODIFIED AST */
-function generateNewCodeAndWrite(ast, buffer, filePath, options) {
+// This replaces the parsed file with a modified version that supports i18n
+function generateNewCodeAndWrite(ast, buffer, filePath) {
   const output = generate(ast, { /* options */ }, buffer);
 
-  const outputPath = path.join(cwd(), options.output);
   fs.writeFileSync(filePath, output.code);
+}
 
-  /* STEP 5: CREATE SHARED MESSAGES FILE */
+async function generateSharedMessageFile(options) {
+  logger.line();
+  logger.section('Creating shared messages file');
+
   const messagesBuffer = JSON.stringify(processMessages);
   const messagesAst = parser.parseExpression(messagesBuffer);
   const sharedMessagesFileAst = astBuilders.buildSharedMessageFileAst(messagesAst);
+  const outputPath = path.join(cwd(), options.output);
+
   // Parses the newly created shared message file to remove the quotes from
   // object properties, otherwise the i18n management script fails.
   // This could probably be improved to avoid traversing it again.
@@ -167,34 +174,44 @@ function generateNewCodeAndWrite(ast, buffer, filePath, options) {
   }
   fs.writeFileSync(`${outputPath}/shared-messages.js`, messageFileOutput);
 
-  generateConstantsFile(options);
+  logger.success('=> File created');
 }
 
-function generateConstantsFile(options) {
-  const constantsOutput = generate(astBuilders.buildConstantsFileAst(options.locales, options.defaultLocale)).code;
+async function generateConstantsFile(options) {
+  logger.line();
+  logger.section(`Creating constants file: ${options.output}/i18n-constants.js}`);
   const outputPath = path.join(cwd(), options.output);
+  const constantsOutput = generate(astBuilders.buildConstantsFileAst(options.locales, options.defaultLocale)).code;
 
   if (!fs.existsSync(outputPath)){
     fs.mkdirSync(outputPath);
   }
-  fs.writeFileSync(`${outputPath}/i18n-constants-dynamic.js`, constantsOutput);
+  fs.writeFileSync(`${outputPath}/i18n-constants.js`, constantsOutput);
+
+  logger.success('=> File created');
 }
 
 /* INSTALL I18N PROJECT DEPENDENCIES */
 // TODO: pass shell as arg for testing?
 async function installDependencies() {
+  logger.line();
+  logger.section('Installing i18n project dependencies')
   var installSpawn = cp.spawn(`${shell}`, ['../../src/scripts/install-dependencies.sh'], { shell: shell});
 
   for await (const data of installSpawn.stdout) {
-    console.log(data.toString());
+    logger.info(data.toString());
   }
   for await (const data of installSpawn.stderr) {
-    console.log('Error installing dependencies: ', data.toString());
+    logger.error('Error installing dependencies: ', data.toString());
   }
+
+  logger.success('Dependency installation complete');
 }
 
 /* CREATE I18N DIRECTORY IN SOURCE PROJECT */
 async function buildI18nFolderInProject(options) {
+  logger.line();
+  logger.section('Adding i18n helper files to source project');
   const toolsOutputPath = path.join(cwd(), options.toolsOutput);
   const sourceOutputPath = path.join(cwd(), options.output);
   const sourceFilesToCopyPath = path.join(__dirname, '/files-to-write');
@@ -206,11 +223,13 @@ async function buildI18nFolderInProject(options) {
   );
 
   for await (const data of buildI18nSpawn.stdout) {
-    console.log(data.toString());
+   logger.info(data.toString());
   }
   for await (const data of buildI18nSpawn.stderr) {
-    console.log('Error creating i18n files: ', data.toString());
+    logger.error('Error creating i18n helper files: ', data.toString());
   }
+
+  logger.success('Helper files added successfully');
 }
 
 module.exports = {
@@ -219,4 +238,6 @@ module.exports = {
   generateNewCodeAndWrite,
   installDependencies,
   buildI18nFolderInProject,
+  generateSharedMessageFile,
+  generateConstantsFile,
 };

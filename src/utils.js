@@ -45,17 +45,21 @@ function toCamelCaseString(input) {
 }
 
 function languageNameLookup(locale) {
-  // TODO: look into improving display names: (chineseChina and germanGermany aren't ideal)
   const languageNames = new Intl.DisplayNames(['en'], {type: 'language'});
   const name = languageNames.of(locale);
   return toCamelCaseString(name);
 }
 
+function commaSeparatedList(value) {
+  return value.split(',');
+}
+
 module.exports = {
   stripWhitespace,
   convertToString,
+  commaSeparatedList,
   toWords,
   toCamelCase,
   toCamelCaseString,
-  languageNameLookup
+  languageNameLookup,
 }

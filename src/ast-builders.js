@@ -1,6 +1,5 @@
 const parser = require("@babel/parser");
 const t = require("@babel/types");
-const { managedLanguages, allLanguages } = require("./files-to-write/source-files/i18n-constants");
 const { languageNameLookup } = require("./utils");
 
 // AST modifier functions
