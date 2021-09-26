@@ -71,6 +71,7 @@ function traverseAst(ast, options) {
   //    Ex: intl.formatMessage(returnTileMessages.returnPeriod, { startMonth, endMonth });
 
   traverse(ast, {
+    // TODO: break into smaller functions that can be reused for other frameworks
     JSXText: function(nodePath) {
       const nodeValue = nodePath.node.value;
       const isNonEmptyString = typeof nodeValue === 'string' && nodeValue.trim().length > 0;

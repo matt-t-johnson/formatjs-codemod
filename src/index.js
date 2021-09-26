@@ -37,10 +37,11 @@ const recommendedDependencies = ['js-cookie'];
 const requiredDevDependencies = ['@formatjs/cli', 'eslint-plugin-formatjs'];
 const recommendedDevDependencies = ['react-intl-translations-manager', 'glob-fs'];
 
+logger.info('Options: ', options);
+
 async function run() {
   logger.line();
   logger.header('reformatjs');
-  logger.info('Options: ', options);
 
   /* RECURSIVELY READ PROJECT DIRECTORY AND PARSE INCLUDED FILES */
   logger.section(`Traversing source directory ${options.src} and parsing included files`)
