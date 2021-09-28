@@ -8,7 +8,7 @@ Install reformatjs globally: `npm i -g reformatjs`
 (for local development, run `npm i -g` to install the local version as reformatjs)
 ## Running on example projects
 1. Navigate to the example project you want to test the tool against. E.g: `cd example-projects/react-app`
-2. Run the main program `reformatjs -s ../example-projects/react-app/src -o ../example-projects/react-app/src/i18n -t ../example-projects/react-app/src/i18n-tools -l zh-CN,de-DE`
+2. Run the main program `reformatjs -s ./src -o ./src/i18n -t ./i18n-tools -l zh-CN,de-DE`
 
 
 

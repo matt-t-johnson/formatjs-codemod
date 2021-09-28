@@ -24,12 +24,14 @@ const platformShells = {
 const shell = platformShells[OS_PLATFORM];
 let processMessages = {};
 let currentFilePath;
+let currentDirectory;
 
 /* RECURSIVELY READ PROJECT DIRECTORY AND PARSE INCLUDED FILES */
 async function traverseDirectory(directory, options) {
   fs.readdirSync(directory).forEach(file => {
     const fullPath = path.join(directory, file);
     currentFilePath = fullPath;
+    currentDirectory = directory;
 
     // TODO: Add support for other file extensions
     const fileExtensionsToParse = ['js', 'jsx'];
@@ -94,7 +96,7 @@ function traverseAst(ast, options) {
 
         // add import for shared message file
         const parentProgramPath = nodePath.findParent((p) => p.isProgram());
-        const pathToSharedMessages = path.relative(currentFilePath, path.join(options.output, './shared-messages'));
+        const pathToSharedMessages = './'.concat(path.relative(currentDirectory, path.join(cwd(), options.output, './shared-messages')));
         const importSharedMessagesNode = astBuilders.buildImportNode('sharedMessages', pathToSharedMessages);
 
         if (!messagesImported) {
@@ -104,7 +106,8 @@ function traverseAst(ast, options) {
         }
 
         // add imports for intl object
-        const pathToIntl = path.relative(currentFilePath, path.join(options.output, './intl'));
+        // path.relative removes ./ if relative path is in same directory
+        const pathToIntl = './'.concat(path.relative(currentDirectory, path.join(cwd(), options.output, 'intl')));
         const parentComponentPath = nodePath.findParent(p => {
           if (p.isFunctionDeclaration() || p.isClassDeclaration()) return true;
           return false;
@@ -180,7 +183,7 @@ async function generateSharedMessageFile(options) {
 
 async function generateConstantsFile(options) {
   logger.line();
-  logger.section(`Creating constants file: ${options.output}/i18n-constants.js}`);
+  logger.section(`Creating constants file: ${options.output}/i18n-constants.js`);
   const outputPath = path.join(cwd(), options.output);
   const constantsOutput = generate(astBuilders.buildConstantsFileAst(options.locales, options.defaultLocale)).code;
 
