@@ -1,7 +1,7 @@
 import { createIntl, createIntlCache } from '@formatjs/intl';
 import { getLocale } from './i18n-utils';
 import { defaultLocale } from './i18n-constants';
-const messages = require(`./locales/${defaultLocale}`);
+let messages = require(`./locales/${defaultLocale}`);
 
 // This is optional but highly recommended
 // since it prevents memory leak
@@ -12,6 +12,7 @@ const cache = createIntlCache();
 
 // creates a new intl object for for a given locale
 export function initIntl(locale) {
+  messages = require(`./locales/${locale}`);
   window.intl = createIntl(
     {
       defaultLocale,

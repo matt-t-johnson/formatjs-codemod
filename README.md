@@ -9,7 +9,12 @@ Install reformatjs globally: `npm i -g reformatjs`
 ## Running on example projects
 1. Navigate to the example project you want to test the tool against. E.g: `cd example-projects/react-app`
 2. Run the main program `reformatjs -s ./src -o ./src/i18n -t ./i18n-tools -l zh-CN,de-DE`
-
+3. When the main program finishes, run `node i18n-tools/manage-i18n.js`
+4. Navigate to `src/i18n/locales/de-DE.json` in the example project and change some of the message values.
+5. Navigate to `src/i18n/i18n-constants.js` and add `locales.germanGermany` to the `releasedLanguages` constant.
+6. Start the example app, e.g. `npm start`
+7. Open the Application tab in the browser dev tools and set a cookie in the example app with the name `locale` and the value `de-DE`.
+8. Refresh the app. You should see the updated messages displayed.
 
 
 ## Files written to source project
