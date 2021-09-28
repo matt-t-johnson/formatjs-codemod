@@ -2,6 +2,8 @@
 
 // TODO: update i18n files that get copied over to source project
 
+// TODO: create default locale file and set translation manager paths based on CLI options
+
 // TODO: add tests
 
 // TODO: add doc comments for all major functions

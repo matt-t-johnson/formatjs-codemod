@@ -7,9 +7,6 @@ let messages = require(`./locales/${defaultLocale}`);
 // since it prevents memory leak
 const cache = createIntlCache();
 
-
-// TODO: get rid of this file or remove these functions from i18n-utils.js
-
 // creates a new intl object for for a given locale
 export function initIntl(locale) {
   messages = require(`./locales/${locale}`);
